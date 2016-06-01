@@ -59,7 +59,7 @@ colcompMat <- function(presMat,adjMat,SMat,FMat,DMat,model){
   IMat = matrix(nr=N,nc=S)
   if(model == "Full") {
     for(i in 1:S) {    
-      matx = matrix(rep(SMat[,i],each=N),nr = N, nc = N, byrow=TRUE)  
+      matx = matrix(rep(SMat[,i], each=N),nr = N, nc = N, byrow=TRUE)  
       maty = matrix(rep(FMat[,i]*presMat[,i]*A,each=N),nr = N, nc = N, byrow=FALSE)  
       IMat[,i] = 1 - apply(1-adjMat*matx*maty,1,prod)  
     }  	

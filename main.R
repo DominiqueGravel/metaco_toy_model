@@ -20,7 +20,8 @@ metaco_model = function(model,pars,adjMat,Env,presMat,nsteps) {
   ############################################  
   # Loop over all time steps
   for(time in 1:nsteps) {   
-    paste(time)
+
+#    paste(time)
     ######################
     # Test if there is colonization
     randCol = matrix(runif(N*S,0,1),nr=N,nc=S)
@@ -29,8 +30,7 @@ metaco_model = function(model,pars,adjMat,Env,presMat,nsteps) {
     dat.compcol <- colcompMat(presMat,adjMat,SMat,FMat,DMat,model=model)
     IMat=as.matrix(dat.compcol[[1]])
     nMat=as.matrix(dat.compcol[[2]])
-    
-    
+       
     # Perform the test
     ColMat[rowSums(presMat) == 0 & randCol < IMat] = 1    
     
@@ -42,6 +42,7 @@ metaco_model = function(model,pars,adjMat,Env,presMat,nsteps) {
       best = apply(ColMat*SMat,1,max)
       ColMat[ColMat == 1 & ColMat*SMat != best] = 0
     }
+    
     # Random selection among ties
     if(length(ColMat[rowSums(ColMat)>1,])>S) ColMat[rowSums(ColMat)>1,] <- t(apply(ColMat[rowSums(ColMat)>1,],1,pick))
     if(length(ColMat[rowSums(ColMat)>1,])==S) ColMat[rowSums(ColMat)>1,] <- pick(ColMat[rowSums(ColMat)>1,])
