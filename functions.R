@@ -35,7 +35,7 @@ M_f = function(E, u_e, s_e) {
 	D = ncol(E)
 	M = matrix(1, nr = N, nc = R)
 	for(i in 1:D) M = M*exp(-(E[,i]-matrix(u_e[i,],nr=N,nc=R,byrow=TRUE))^2 / matrix(s_e[i,],nr=N,nc=R,byrow=TRUE)^2)
-	return(1-M)	
+	return(M)	
 }
 
 # Effect of ecological interactions on extinction

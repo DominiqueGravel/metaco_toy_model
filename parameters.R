@@ -13,11 +13,48 @@
 # d_e: scalar, strength of the effect of interactions on the extinction probability
 # A: matrix of dimension R X R with the effect of each species (column) on other species (rows)
 
+#########################
+# Example 1
+# Pure metapopulation dynamics
+#########################
 
-# The following example has competitive interactions, species sorting over two gradients and dispersal
+# N = 100
+# D = 2
+# R = 25
+
+# u_c = matrix(0.5, nr = D, nc = R)
+# u_e = matrix(0.5, nr = D, nc = R)
+
+# s_c = matrix(1, nr = D, nc = R)
+# s_e = matrix(1, nr = D, nc = R)
+
+# alpha = 0.3
+# m = 0.00
+
+# c_0 = rep(0.5, R)
+# e_0 = rep(0.1, R)
+
+# c_max = rep(0.8, R)
+# e_min = rep(0.05, R)
+
+# d_c = 0.5
+# d_e = 0.5
+
+# A = matrix(0, nr = R, nc = R)
+# diag(A) = 0
+
+# pars = list(u_c = u_c, u_e = u_e, s_c = s_c, s_e = s_e, alpha = alpha, m = m, 
+# c_0 = c_0, e_0 = e_0, c_max = c_max, e_min = e_min, d_c = d_c, d_e = d_e, A = A)
+
+
+#########################
+# Example 2
+# Species sorting on colonization + dispersal
+#########################
+
 N = 100
 D = 2
-R = 5
+R = 25
 
 u_c = matrix(nr = D, nc = R)
 u_c[1,] = seq(0.1,0.9,length=R)
@@ -25,18 +62,18 @@ u_c[2,] = rep(0.5, R)
 
 u_e = matrix(nr = D, nc = R)
 u_e[1,] = rep(0.5, R)
-u_e[2,] = seq(0.9,0.1,length=R)
+u_e[2,] = rep(0.5, R)
 
-s_c = matrix(0.2, nr = D, nc = R)
-s_e = matrix(0.2, nr = D, nc = R)
+s_c = matrix(1, nr = D, nc = R)
+s_e = matrix(1, nr = D, nc = R)
 
 alpha = 0.3
 m = 0.001
 
-c_0 = rep(0.2, R)
+c_0 = rep(0.5, R)
 e_0 = rep(0.1, R)
 
-c_max = rep(0.4, R)
+c_max = rep(0.8, R)
 e_min = rep(0.05, R)
 
 d_c = 0.5
@@ -47,6 +84,4 @@ diag(A) = 0
 
 pars = list(u_c = u_c, u_e = u_e, s_c = s_c, s_e = s_e, alpha = alpha, m = m, 
 c_0 = c_0, e_0 = e_0, c_max = c_max, e_min = e_min, d_c = d_c, d_e = d_e, A = A)
-
-
 
