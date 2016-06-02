@@ -29,9 +29,9 @@ for(z in 1:10) {
 	Y0[rand < 0.5] = 1
 
 	nsteps = 1000
-	res[10] = system.time(main(XY,E,Y0,pars,A,nsteps))[3]
+	res[z] = system.time(main(XY,E,Y0,pars,A,nsteps))[3]
 
-	cat(N,'\n')
+	cat("Number of units = ", N, " Time to run = ", res[z], '\n')
 }
 dev.new(width = 8, height = 6)
 par(mar = c(5,6,2,1))
