@@ -1,64 +1,58 @@
-### General functions
-# gaussian
-gauss = function(u,s,Max,E) Max*exp(-(u-E)^2/2/s^2)
+#####################
+#
+# Functions used to compute the colonization and extinction probabilities
+# Names of functions correspond to the ones described in the main text
+# These could be tweaked to change things such as the shape of the dispersal kernel
+# or the response to the environment
+# Dominique Gravel
+# June 2nd, 2016
+# 
+####################
 
-# select among ties
-pick <- function(x){
-  x <- c(x)
-  if(length(x[x!=0])>1) x[x!=0]=sample(c(1,rep(0,length(x[x!=0])-1)),length(x[x!=0]),replace=F)
-  return(x)
-} 
+# Compute the sum of ecological interactions for every location and every species
+sum_interactions = function (A, Y) t(A%*%t(Y))
 
-### Generate random spatial coordinates for each patch
-land.aggr.rand <- function(aggr,N=N){
-  
-  # assess the aggregation of patches
-  dis <- rep(aggr, N%/%aggr)
-  if(sum(dis)!=N) dis <- c(dis, N-sum(dis)) 
-  
-  # select coordinates of patch aggregates
-  XY <- data.frame(x=seq(50,950,10),y=seq(50,950,10))
-  XY.pairs <- expand.grid(XY)
-  XY.select <- XY.pairs[sample(1:nrow(XY.pairs),length(dis)),]
-  
-  # patch coordinates
-  coord.mat <- 0
-  dat <- seq(-50,50,1)
-  x<-sample(dat,dis[1],replace=F) + XY.select[1,1]
-  y<-sample(dat,dis[1],replace=F) + XY.select[1,2]
-  coord.mat <- cbind(x,y)  
-  for(i in 2:length(dis)){
-    x<-sample(dat,dis[i],replace=F) + XY.select[i,1]
-    y<-sample(dat,dis[i],replace=F) + XY.select[i,2]
-    coord.mat <- rbind(coord.mat,cbind(x,y))
-  }
-  return(coord.mat)
+# Compute the propagule pressure
+I_f = function(Y, K, m) I = (1-m)*(K%*%Y)/(K%*%matrix(1,nr=N,nc=R)) + m
+
+# Compute the local performance of propagules
+S_f = function(E, u_c, s_c) {
+	R = ncol(u_c)
+	N = nrow(E)
+	D = ncol(E)
+	S = matrix(1, nr = N, nc = R)
+	for(i in 1:D) S = S*exp(-(E[,i]-matrix(u_c[i,],nr=N,nc=R,byrow=TRUE))^2 / matrix(s_c[i,],nr=N,nc=R,byrow=TRUE)^2)
+	return(S)
 }
 
-### Generate random landscape characteristics
-make.land <- function(N, aggr, r, model="Random") {
-  if(model!="Random" & model!="Gradient" & model!="Patchy" & model!="Homogeneous") stop("model should be one of Random, Gradient, Patchy, Homogeneous")
-  
-  XY = land.aggr.rand(aggr=aggr,N=N) # spatial coordinates
-  distMat = as.matrix(dist(XY, method = 'euclidean', upper = T, diag = T))
-  if(model=="Random"){
-    Env <- sample(1:N,N,replace=F)
-  }else if(model=="Gradient"){
-    Env <- c(1:N)[rank(distMat[,1])]
-  }else if(model=="Patchy"){
-    clus <- hclust(dist(XY, method = 'euclidean', upper = T, diag = T),"ward")
-    clus <- cutree(clus, N%/%10)
-    Env <- round(rank(clus,ties.method="average"),0)
-  }else if(model=="Homogeneous"){
-    Env <- rep(50,N)
-  }
-  diag(distMat) <- 10000
-  adjMat = matrix(0, nr = N, nc = N)
-  adjMat[distMat < r] = 1
-  diag(adjMat) = 0
-  
-  MND.dis <- mean(apply(distMat,2,min))
-  
-  return(list(XY,Env,distMat,adjMat,MND.dis))
+# Effect of ecological interactions on colonization probability
+C_f = function(v, d_c, c_0, c_max) c_max*(1 +(1/c_0 - 1)*exp(-v*d_c))^-1
+
+# Effect of the environment on the extinction
+M_f = function(E, u_e, s_e) {
+	R = ncol(u_e)
+	N = nrow(E)
+	D = ncol(E)
+	M = matrix(1, nr = N, nc = R)
+	for(i in 1:D) M = M*exp(-(E[,i]-matrix(u_e[i,],nr=N,nc=R,byrow=TRUE))^2 / matrix(s_e[i,],nr=N,nc=R,byrow=TRUE)^2)
+	return(1-M)	
 }
+
+# Effect of ecological interactions on extinction
+E_f = function(v, d_e, e_0, e_min) {
+
+	e_min_mat = matrix(e_min, nr = N, nc = R, byrow=TRUE)
+
+	e_min_mat+(1/(1-e_min_mat)+(1/(e_0-e_min_mat)-1/(1-e_min_mat))*exp(d_e*v))^-1
+
+}
+# Compute the connectivity matrix
+get_K = function(XY, alpha) {
+	N = nrow(XY)
+	distMat = as.matrix(dist(XY, method = "euclidean", upper = T, diag = T))
+	ConMat = exp(-1/alpha*distMat)
+	diag(ConMat) = 0
+	return(ConMat)
+}
+
 
